@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2004-2005 Sun Microsystems, Inc. All rights reserved. Use is
  * subject to license terms.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the Lesser GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -21,7 +21,7 @@
 /*
  * Bridges xscreensaver (Linux or Solaris) to Java
  * Define either -DPLATFORM_SunOS or -DPLATFORM_Linux as a parameter to gcc
- * 
+ *
  * Author: Mark Roth <mark.roth@sun.com>
  * Contributor: Bino George <bino.george@sun.com>
  */
@@ -44,7 +44,7 @@
 #endif
 
 /** Copyright notice to appear in generated binaries */
-char *copyright = 
+char *copyright =
 "Copyright (c) 2004-2005 Sun Microsystems, Inc., 4150 Network Circle, Santa \n"
 "Clara, California 95054, U.S.A. All rights reserved.  Use is subject \n"
 "to license terms specified in the file COPYING included in this \n"
@@ -52,7 +52,7 @@ char *copyright =
 "trademarks or registered trademarks of Sun Microsystems, Inc. in the \n"
 "U.S. and other countries. \n"
 "\n"
-"This product is covered and controlled by U.S. Export Control laws and \n" 
+"This product is covered and controlled by U.S. Export Control laws and \n"
 "may be subject to the export or import laws in other countries. \n"
 "Nuclear, missile, chemical biological weapons or nuclear maritime end \n"
 "uses or end users, whether direct or indirect, are strictly \n"
@@ -105,8 +105,8 @@ XrmOptionDescRec [[name]]_options [] = {
 };
 
 char *[[name]]_defaults [] = {
-    ".background:	black",
-    ".foreground:	white",
+    ".background:       black",
+    ".foreground:       white",
     "*class:            [[class]]",
     "*jar:              [[jar]]",
     "*delay:            16666",
@@ -154,19 +154,19 @@ init_saverbeans( struct state *st ) {
     /*
      * st->jdkHome = get_string_resource(st->dpy, "jdkHome", "String" );
      */
-    
+
     /* We need class in the form com/acme/Foo, not com.acme.Foo */
-    st->realClassName = malloc( strlen( st->className ) + 1 );
+    st->realClassName = malloc( strlen( st->className ) );
     strcpy( st->realClassName, st->className );
     for( i = 0; i < strlen(st->realClassName); i++ ) {
         if( st->realClassName[i] == '.' ) st->realClassName[i] = '/';
     }
-    
+
     i = 0;
 }
 
-/* 
- * Create the Graphics object.  The current strategy for this is to 
+/*
+ * Create the Graphics object.  The current strategy for this is to
  * create an EmbeddedFrame that is a child of this native window
  * and snag the Graphics object from it.  The screen saver will be
  * rendering to an embedded frame but that shouldn't matter.
@@ -185,9 +185,9 @@ static int create_frame( struct state *st )
     jclass cls;
     int valid = 1;
     XWindowAttributes xgwa;
-    
+
     XGetWindowAttributes( st->dpy, st->window, &xgwa );
-    
+
     /* Create an embedded frame that is a child of this window */
     cls = (*(st->env))->FindClass( st->env, EMBEDDED_FRAME_CLASS );
     if( cls == NULL ) {
@@ -205,7 +205,7 @@ static int create_frame( struct state *st )
             valid = 0;
         }
     }
-    
+
     /* Create embedded frame */
     if( valid ) {
         frame = (*(st->env))->NewObject( st->env, cls, constructor, (jlong)st->window );
@@ -224,31 +224,31 @@ static void update_context( struct state *st )
     int valid = 1;
     jmethodID mid;
     XWindowAttributes xgwa;
-    
+
     XGetWindowAttributes( st->dpy, st->window, &xgwa );
-    
+
     /* If either the width or height changed, change the bounds of the
      * embedded frame as well. */
     if( (st->prev_width != xgwa.width) || (st->prev_height != xgwa.height) ) {
         /* Set bounds to the bounds of the enclosing window */
         if( valid ) {
-            mid = (*(st->env))->GetMethodID( st->env, st->class_embedded_frame, 
+            mid = (*(st->env))->GetMethodID( st->env, st->class_embedded_frame,
                 "setBounds", "(IIII)V" );
             if( mid == NULL ) {
                 fprintf( stderr, "Could not find setBounds()\n" );
                 valid = 0;
             }
             else {
-                (*(st->env))->CallVoidMethod( st->env, st->frame, mid, 0, 0, 
+                (*(st->env))->CallVoidMethod( st->env, st->frame, mid, 0, 0,
                     xgwa.width, xgwa.height );
             }
         }
-        
+
         st->prev_width = xgwa.width;
         st->prev_height = xgwa.height;
     }
 }
-    
+
 /* Create the information in the ScreensaverContext object */
 static int create_context( struct state *st )
 {
@@ -259,22 +259,22 @@ static int create_context( struct state *st )
     jobject context = 0;
     char *key, *value;
     jstring keyString, valueString;
-    XrmOptionDescRec *opt = bouncingline_options;
+    XrmOptionDescRec *opt = [[name]]_options;
     XWindowAttributes xgwa;
     XGetWindowAttributes( st->dpy, st->window, &xgwa );
-    
+
     /* Find ScreensaverContext class: */
     class_context = (*(st->env))->FindClass( st->env, SCREENSAVER_CONTEXT_CLASS );
     if( class_context == NULL ) {
-        fprintf( stderr, "Could not find class %s\n", 
+        fprintf( stderr, "Could not find class %s\n",
             SCREENSAVER_CONTEXT_CLASS );
         valid = 0;
     }
-    
+
     /* Find constructor */
     if( valid ) {
         st->class_context = class_context;
-        constructor = (*(st->env))->GetMethodID( st->env, class_context, 
+        constructor = (*(st->env))->GetMethodID( st->env, class_context,
             "<init>", "()V" );
         if( constructor == NULL ) {
             fprintf( stderr, "Could not find constructor for %s\n",
@@ -294,7 +294,7 @@ static int create_context( struct state *st )
             st->context = context;
         }
     }
-    
+
     /* Create an instance of the ScreensaverContext */
     if( valid ) {
         if( context == NULL ) {
@@ -305,10 +305,10 @@ static int create_context( struct state *st )
 
     /* Find and call setComponent() */
     if( valid ) {
-        mid = (*(st->env))->GetMethodID( st->env, class_context, "setComponent", 
+        mid = (*(st->env))->GetMethodID( st->env, class_context, "setComponent",
             "(Ljava/awt/Component;)V" );
         if( mid == NULL ) {
-            fprintf( stderr, 
+            fprintf( stderr,
                 "Could not find ScreensaverContext.setComponent()\n");
             valid = 0;
         }
@@ -331,18 +331,18 @@ static int create_context( struct state *st )
                 key = ((opt->option)+1);
                 keyString = (*(st->env))->NewStringUTF( st->env, key );
                 if(opt->argKind == XrmoptionIsArg) {
-		  value = get_string_resource(st->dpy, key, "String" );
+                  value = get_string_resource(st->dpy, key, "String" );
                     if( value != 0 ) {
                         valueString = (*(st->env))->NewStringUTF( st->env, "" );
-                        (*(st->env))->CallVoidMethod( st->env, context, mid, keyString, 
+                        (*(st->env))->CallVoidMethod( st->env, context, mid, keyString,
                             valueString );
                     }
                 }
                 else {
-		  value = get_string_resource(st->dpy, key, "String" );
+                  value = get_string_resource(st->dpy, key, "String" );
                     if( value != 0 ) {
                         valueString = (*(st->env))->NewStringUTF( st->env, value );
-                        (*(st->env))->CallVoidMethod( st->env, context, mid, keyString, 
+                        (*(st->env))->CallVoidMethod( st->env, context, mid, keyString,
                             valueString );
                     }
                 }
@@ -350,16 +350,16 @@ static int create_context( struct state *st )
             }
         }
     }
-    
+
     return valid;
 }
 
 /* ------------------------------------------------------------------------- */
-/* 
+/*
  * In the current JDK, we cannot dynamically load the VM via dlopen()
  * so there is no way to run the JDK without having LD_LIBRARY_PATH set.
  * In a future version we can eliminate the wrapper shell script by
- * using dlopen() instead of setting LD_LIBRARY_PATH.  I'm preserving 
+ * using dlopen() instead of setting LD_LIBRARY_PATH.  I'm preserving
  * this code in case we are later able to do this.
  */
 /**
@@ -466,17 +466,12 @@ static jboolean InitializeJavaVM( struct state *st ) {
     JavaVM *jvm = &st + offsetof(struct state, jvm);
 
     JavaVMInitArgs vm_args;
-    JavaVMOption options[2];
     options[0].optionString = malloc( 320 + strlen(st->jarName) );
-    /* Not all screensavers use JOGL, but it doesn't hurt to add it 
-     * to the classpath. 
-     */
-    sprintf( options[0].optionString, "-Djava.class.path=%s%c%s%c%s", st->jarName,
-        PATH_SEPARATOR, "saverbeans-api.jar", PATH_SEPARATOR, "jogl.jar" );
-    options[1].optionString = "-Dsun.java2d.pmoffscreen=false";
+    sprintf( options[0].optionString, "-Djava.class.path=%s%c%s", st->jarName,
+        PATH_SEPARATOR, "saverbeans-api.jar" );
     vm_args.version = 0x00010002;
     vm_args.options = options;
-    vm_args.nOptions = 2;
+    vm_args.nOptions = 1;
     vm_args.ignoreUnrecognized = JNI_TRUE;
     /* Create the Java VM */
     res = JNI_CreateJavaVM(&jvm, (void **)penv, &vm_args);
@@ -491,57 +486,7 @@ static jboolean InitializeJavaVM( struct state *st ) {
     return valid;
 }
 
-/* Called when we are to shut down the screensaver */
-static void on_destroy( struct state *st ) {
-    jmethodID destroy_mid;
-    jclass cls = NULL;
-    int valid = 1;
-
-    /* If destroy was already called, return immediately */
-    if( st->terminated ) return;
-
-    /* Notify main loop to stop iterating */
-    st->terminated = 1;
-
-    /* First, invoke destroy() on the screensaver */
-    if( st->env ) {
-        /* Find the screensaver class */
-        if( valid ) {
-            cls = (*(st->env))->FindClass(st->env, st->realClassName);
-            if (cls == NULL) {
-                fprintf( stderr, "Can't find class %s\n", st->realClassName );
-                valid = 0;
-            }
-        }
-
-        /* Find the destroy() method */
-        if( valid ) {
-            destroy_mid = (*(st->env))->GetMethodID( st->env, cls, "baseDestroy", 
-                "()V" );
-            if (destroy_mid == NULL) {
-                fprintf( stderr, "Can't find baseDestroy() method\n" );
-                valid = 0;
-            }
-        }
-
-        /* Invoke destroy() */
-        if( valid ) {
-            (*(st->env))->CallVoidMethod( st->env, st->saver, destroy_mid );
-        }
-
-        /* Output any exceptions before we quit */
-        if ((*(st->env))->ExceptionOccurred(st->env)) {
-            (*(st->env))->ExceptionDescribe(st->env);
-        }
-    }
-}
-
-/* Invoked when exit() is called  */
-static void atexit_handler( struct state *st ) {
-    on_destroy(st);
-}
-
-static void * [[name]]_init(Display *dpy, Window window) 
+static void * [[name]]_init(Display *dpy, Window window)
 {
   int valid = 1;
   jclass cls = NULL;
@@ -579,7 +524,7 @@ static void * [[name]]_init(Display *dpy, Window window)
   }
 
   /* Find the class */
-  if( valid && st->env ) {
+  if( valid ) {
     cls = (*(st->env))->FindClass(st->env, st->realClassName);
     if (cls == NULL) {
       fprintf( stderr, "Can't find class %s\n", st->realClassName );
@@ -591,8 +536,8 @@ static void * [[name]]_init(Display *dpy, Window window)
   if( valid ) {
     class_screensaver = (*(st->env))->FindClass( st->env, SCREENSAVER_BASE_CLASS );
     if( class_screensaver == NULL ) {
-      fprintf( stderr, "Can't find base class %s\n", 
-	       SCREENSAVER_BASE_CLASS );
+      fprintf( stderr, "Can't find base class %s\n",
+               SCREENSAVER_BASE_CLASS );
       valid = 0;
     }
   }
@@ -601,7 +546,7 @@ static void * [[name]]_init(Display *dpy, Window window)
   if( valid ) {
     if( !((*(st->env))->IsAssignableFrom( st->env, cls, class_screensaver ) ) ) {
       fprintf( stderr, "Error: Class %s is not a subclass of %s\n",
-	       st->realClassName, SCREENSAVER_BASE_CLASS );
+               st->realClassName, SCREENSAVER_BASE_CLASS );
       valid = 0;
     }
   }
@@ -610,8 +555,8 @@ static void * [[name]]_init(Display *dpy, Window window)
   if( valid ) {
     constructor = (*(st->env))->GetMethodID( st->env, cls, "<init>", "()V" );
     if( constructor == NULL ) {
-      fprintf( stderr, 
-	       "Can't find no-args constructor for screensaver\n" );
+      fprintf( stderr,
+               "Can't find no-args constructor for screensaver\n" );
       valid = 0;
     }
   }
@@ -620,8 +565,8 @@ static void * [[name]]_init(Display *dpy, Window window)
   if( valid ) {
     st->saver = (*(st->env))->NewObject( st->env, cls, constructor );
     if( st->saver == NULL ) {
-      fprintf( stderr, "Error creating instance of %s\n", 
-	       st->realClassName );
+      fprintf( stderr, "Error creating instance of %s\n",
+               st->realClassName );
       valid = 0;
     }
   }
@@ -638,8 +583,8 @@ static void * [[name]]_init(Display *dpy, Window window)
 
   /* Initialize screen saver */
   if( valid ) {
-    mid = (*(st->env))->GetMethodID( st->env, cls, "baseInit", 
-			       "(Lorg/jdesktop/jdic/screensaver/ScreensaverContext;)V" );
+    mid = (*(st->env))->GetMethodID( st->env, cls, "baseInit",
+                               "(Lorg/jdesktop/jdic/screensaver/ScreensaverContext;)V" );
     if( mid == NULL ) {
       fprintf( stderr, "Could not find baseInit() method\n" );
       valid = 0;
@@ -651,8 +596,8 @@ static void * [[name]]_init(Display *dpy, Window window)
 
   /* Find renderFrame() method */
   if( valid ) {
-    st->render_frame_mid = (*(st->env))->GetMethodID( st->env, cls, "renderFrame", 
-					    "()V" );
+    st->render_frame_mid = (*(st->env))->GetMethodID( st->env, cls, "renderFrame",
+                                                      "()V" );
     if( st->render_frame_mid == NULL ) {
       fprintf( stderr, "Could not find renderFrame() method\n" );
       valid = 0;
@@ -663,7 +608,8 @@ static void * [[name]]_init(Display *dpy, Window window)
   return st;
 }
 
-static unsigned long bouncingline_draw(Display *dpy, Window window, void *closure)
+static unsigned long
+[[name]]_draw(Display *dpy, Window window, void *closure)
 {
   struct state *st = (struct state *) closure;
 
@@ -673,9 +619,9 @@ static unsigned long bouncingline_draw(Display *dpy, Window window, void *closur
   return st->delay;
 }
 
-static void 
-bouncingline_reshape(Display *dpy, Window window, 
-		     void *closure, unsigned int w, unsigned int h)
+static void
+[[name]]_reshape(Display *dpy, Window window, void *closure,
+                 unsigned int w, unsigned int h)
 {
   struct state *st = (struct state *) closure;
 
@@ -684,13 +630,14 @@ bouncingline_reshape(Display *dpy, Window window,
 }
 
 static Bool
-bouncingline_event(Display *dpy, Window window, void *closure, XEvent *event)
+[[name]]_event(Display *dpy, Window window, void *closure, XEvent *event)
 {
+  return False;
 }
 
-static void bouncingline_free(Display *dpy, Window window, void *closure)
+static void
+[[name]]_free(Display *dpy, Window window, void *closure)
 {
 }
 
 XSCREENSAVER_MODULE("[[name]]", [[name]])
-
